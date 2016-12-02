@@ -1,0 +1,7 @@
+version: '2'
+services:
+  dns-root:
+    build: dns-root
+    ports:
+      - "53"
+      - "53/udp"
