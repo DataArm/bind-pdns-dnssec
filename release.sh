@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-source lib/dns.sh
 
 ACTION="${1}"
 if [[ "${ACTION}" != "" ]]; then
@@ -27,31 +26,45 @@ esac
 case "${ACTION}" in
   "build" | "start" )
     docker-compose up --build -d ${CONTAINER}
-    if [[ "${CONTAINER}" == "" ]] || [[ "${CONTAINER}" == "dns-root" ]]; then
-      PORT="`docker-compose port --protocol=udp dns-root 53 | sed -e "s|.*:||g"`"
-      CNT_NAME="`docker-compose ps | awk '{ print $1; }' | grep "dns-root_1$"`"
+    if [[ "${CONTAINER}" == "" ]] || [[ "${CONTAINER}" == "root-server" ]]; then
+      CNT_NAME="`docker-compose ps | awk '{ print $1; }' | grep "root-server_1$"`"
       IP="`docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CNT_NAME}`"
-      SERIAL="`dig +short @127.0.0.1 -p ${PORT} . SOA | awk '{ print $3; }'`"
       let "SERIAL = ${SERIAL} + 1"
-      read -r -d '' QUERY <<-EOF
-        zone .
+      echo "zone .
         debug
-        update delete master.root-servers. A
-        update add master.root-servers. 86400 IN A ${IP}
-        update delete . NS master.root-servers.
-        update add . 86400 IN NS master.root-servers.
-        update delete . NS localhost
-        update add . 86400 IN SOA master.root-servers. isaac.uribe.icann.org. ${SERIAL} 3600 900 604800 1200
-        update delete . SOA
-EOF
-      update_dns "127.0.0.1" "${PORT}" "${QUERY}"
+        update delete root-server. A
+        update add root-server. 86400 IN A ${IP}
+        update delete . NS root-server.
+        update add . 86400 IN NS root-server.
+        update delete localhost. A
+        update delete . NS localhost" > data.txt
+      docker cp data.txt ${CNT_NAME}:/root/ \
+      && docker-compose exec root-server '/root/update-dns.sh'
+    fi
+    if [[ "${CONTAINER}" == "" ]] || [[ "${CONTAINER}" == "mariadb" ]]; then
+      docker-compose exec mariadb '/root/run.sh'
+    fi
+    if [[ "${CONTAINER}" == "" ]] || [[ "${CONTAINER}" == "tld-server" ]]; then
+      docker-compose exec tld-server '/root/run.sh'
+      DS="`docker-compose exec tld-server 'pdnsutil' 'show-zone' | sed -e "s| *;.*||g" -e "s|.*= *|update add |g"`"
+      CNT_NAME="`docker-compose ps | awk '{ print $1; }' | grep "tld-server_1$"`"
+      IP="`docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CNT_NAME}`"
+      echo "zone .
+        debug
+        update delete tld-server. A
+        update add tld-server. 86400 IN A ${IP}
+        update delete tld. NS
+        update add tld. 86400 IN NS tld-server." > data.txt
+      CNT_NAME="`docker-compose ps | awk '{ print $1; }' | grep "root-server_1$"`"
+      docker cp data.txt ${CNT_NAME}:/root/ \
+      && docker-compose exec root-server '/root/update-dns.sh'
     fi
     ;;
   "logs" )
     docker-compose logs -f ${CONTAINER}
     ;;
   "shell" )
-    docker-compose exec ${CONTAINER} sh
+    docker-compose exec ${CONTAINER} bash
     ;;
   "status" )
     docker-compose ps

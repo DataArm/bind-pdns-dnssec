@@ -1,7 +1,19 @@
 version: '2'
 services:
-  dns-root:
-    build: dns-root
-    ports:
-      - "53"
-      - "53/udp"
+  mariadb:
+    build: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+  root-server:
+    build: root-server
+  tld-server:
+    build: tld-server
+    depends_on:
+      - mariadb
+      - root-server
+  client:
+    build: client
+    depends_on:
+      - mariadb
+      - root-server
+      - tld-server
