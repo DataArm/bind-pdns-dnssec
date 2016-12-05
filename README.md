@@ -45,6 +45,7 @@ bindpdnsdnssec_tld-server_1    pdns_server --daemon=no -- ...   Up      53/tcp, 
 Log in to the "client" container by executing: `bash release.sh shell client` and
 run: `dig @recursive . +dnssec` which will show the "do" and "ad" flags (correct
 DNSSEC per ftp://ftp.rfc-editor.org/in-notes/rfc3655.txt), e.g:
+
 `;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 61015
 ;; flags: qr rd ra ad; QUERY: 1, ANSWER: 0, AUTHORITY: 4, ADDITIONAL: 1
 
