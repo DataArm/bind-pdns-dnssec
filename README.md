@@ -31,7 +31,8 @@ Steps:
 1. A lot of information will come up, at the end, you should see 4 containers running,
 when executing `bash release.sh status`, e.g:
 
-```Name                          Command               State       Ports
+```
+            Name                          Command               State       Ports
 --------------------------------------------------------------------------------------
 bindpdnsdnssec_client_1        tail -F /dev/null                Up
 bindpdnsdnssec_mariadb_1       docker-entrypoint.sh mysqld      Up      3306/tcp
@@ -48,7 +49,8 @@ Log in to the "client" container by executing: `bash release.sh shell client` an
 run: `dig @recursive . +dnssec` which will show the "do" and "ad" flags (correct
 DNSSEC per ftp://ftp.rfc-editor.org/in-notes/rfc3655.txt), e.g:
 
-```;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 61015
+```
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 61015
 ;; flags: qr rd ra ad; QUERY: 1, ANSWER: 0, AUTHORITY: 4, ADDITIONAL: 1
 
 ;; OPT PSEUDOSECTION:
