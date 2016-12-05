@@ -4,3 +4,6 @@ zone .
         update add tld-server. 86400 IN A 172.21.0.4
         update delete tld. NS
         update add tld. 86400 IN NS tld-server.
+        update add tld. 86400 IN DS 11678 13 1 639d2b3ca493d1ebd8414fcb37c03a30da1b6aa2
+update add tld. 86400 IN DS 11678 13 2 5084ca5b2da42303631f6347fda36c03fdd3aa1724edb2715fe77f1f7c9d7d9d
+update add tld. 86400 IN DS 11678 13 4 8a59a583d71d09d202584be34b9e91c51e07684a654e4789ee757287166bcdb5b5e1d67933c9fe44806de2b9ae58b5a1

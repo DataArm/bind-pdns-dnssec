@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-set -x
 
+echo "Updating zone ${1} ..."
 cd
-data="`cat data.txt`"
+data="`cat ${1}`"
 cat <<-EOF | nsupdate
 server 127.0.0.1
   ${data}

@@ -7,10 +7,10 @@ RUN yum install -y epel-release yum-plugin-priorities \
 ADD pdns.conf /etc/pdns/pdns.conf
 RUN sed -i -e "s|^gmysql-host.*|gmysql-host = mariadb|g" /etc/pdns/pdns.conf
 
-ADD run.sh /root/
-RUN chmod +x /root/run.sh
+ADD init-zone.sh /root/
+RUN chmod +x /root/*.sh
 
-CMD ["pdns_server"]
+CMD ["pdns_server", "--daemon=no", "--guardian"]
 
 EXPOSE 53
 EXPOSE 53/udp

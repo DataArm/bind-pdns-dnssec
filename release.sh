@@ -1,25 +1,26 @@
 #!/usr/bin/env bash
+#See README for details
 
 ACTION="${1}"
 if [[ "${ACTION}" != "" ]]; then
   CONTAINER="${2}"
 else
-  echo "No action defined, I should use argsparse"
-  exit 1
+  ACTION="build"
 fi
 
 case "${ACTION}" in
-  "destroy" )
-    docker-compose kill
-    docker ps -a -q | xargs -IID docker stop ID
-    docker ps -a -q | xargs -IID docker rm ID
-    docker images -q | xargs -IID docker rmi ID
-    ;;
   "prepare" | "build" )
     docker-compose build ${CONTAINER}
     ;;
+  "rm"|"destroy" )
+    docker-compose kill ${CONTAINER}
+    docker-compose rm -f ${CONTAINER}
+    ;;
   "stop" )
     docker-compose stop ${CONTAINER}
+    ;;
+  "status" )
+    docker-compose ps
     ;;
 esac
 
@@ -39,14 +40,15 @@ case "${ACTION}" in
         update delete localhost. A
         update delete . NS localhost" > data.txt
       docker cp data.txt ${CNT_NAME}:/root/ \
-      && docker-compose exec root-server '/root/update-dns.sh'
+      && docker-compose exec root-server '/root/update-dns.sh' '/root/data.txt' \
+      && docker-compose exec root-server '/root/sign-zone.sh' '.'
     fi
     if [[ "${CONTAINER}" == "" ]] || [[ "${CONTAINER}" == "mariadb" ]]; then
-      docker-compose exec mariadb '/root/run.sh'
+      docker-compose exec mariadb '/root/init.sh'
     fi
     if [[ "${CONTAINER}" == "" ]] || [[ "${CONTAINER}" == "tld-server" ]]; then
-      docker-compose exec tld-server '/root/run.sh'
-      DS="`docker-compose exec tld-server 'pdnsutil' 'show-zone' | sed -e "s| *;.*||g" -e "s|.*= *|update add |g"`"
+      docker-compose exec tld-server '/root/init-zone.sh' 'tld'
+      DS="`docker-compose exec tld-server 'pdnsutil' 'show-zone' 'tld' | grep -e '^DS' | sed -e "s| *;.*||g" -e "s|.*= *|update add |g" -e "s|\. IN DS|. 86400 IN DS|g"`"
       CNT_NAME="`docker-compose ps | awk '{ print $1; }' | grep "tld-server_1$"`"
       IP="`docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CNT_NAME}`"
       echo "zone .
@@ -54,19 +56,20 @@ case "${ACTION}" in
         update delete tld-server. A
         update add tld-server. 86400 IN A ${IP}
         update delete tld. NS
-        update add tld. 86400 IN NS tld-server." > data.txt
+        update add tld. 86400 IN NS tld-server.
+        ${DS}" > data.txt
       CNT_NAME="`docker-compose ps | awk '{ print $1; }' | grep "root-server_1$"`"
       docker cp data.txt ${CNT_NAME}:/root/ \
-      && docker-compose exec root-server '/root/update-dns.sh'
+      && docker-compose exec root-server '/root/update-dns.sh' '/root/data.txt'
     fi
+    ;;
+  "destroy" )
+    docker images -q | xargs -IID docker rmi ID
     ;;
   "logs" )
     docker-compose logs -f ${CONTAINER}
     ;;
   "shell" )
     docker-compose exec ${CONTAINER} bash
-    ;;
-  "status" )
-    docker-compose ps
     ;;
 esac
