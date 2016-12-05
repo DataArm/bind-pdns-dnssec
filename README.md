@@ -31,7 +31,7 @@ Steps:
 1. A lot of information will come up, at the end, you should see 4 containers running,
 when executing `bash release.sh status`, e.g:
 
-```            Name                          Command               State       Ports
+```Name                          Command               State       Ports
 --------------------------------------------------------------------------------------
 bindpdnsdnssec_client_1        tail -F /dev/null                Up
 bindpdnsdnssec_mariadb_1       docker-entrypoint.sh mysqld      Up      3306/tcp
