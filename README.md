@@ -30,14 +30,14 @@ Steps:
 1. cd to the repository and run: `bash release.sh`
 1. A lot of information will come up, at the end, you should see 4 containers running,
 when executing `bash release.sh status`, e.g:
-`            Name                          Command               State       Ports
+```            Name                          Command               State       Ports
 --------------------------------------------------------------------------------------
 bindpdnsdnssec_client_1        tail -F /dev/null                Up
 bindpdnsdnssec_mariadb_1       docker-entrypoint.sh mysqld      Up      3306/tcp
 bindpdnsdnssec_recursive_1     /docker-entrypoint.sh            Up      53/tcp, 53/udp
 bindpdnsdnssec_root-server_1   named -g -u named -d 99          Up      53/tcp, 53/udp
 bindpdnsdnssec_tld-server_1    pdns_server --daemon=no -- ...   Up      53/tcp, 53/udp
-`
+```
 1. Open up a screen and keep an eye on the logs by executing: `bash release.sh logs`
 
 ## Usage
@@ -46,7 +46,7 @@ Log in to the "client" container by executing: `bash release.sh shell client` an
 run: `dig @recursive . +dnssec` which will show the "do" and "ad" flags (correct
 DNSSEC per ftp://ftp.rfc-editor.org/in-notes/rfc3655.txt), e.g:
 
-`;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 61015
+```;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 61015
 ;; flags: qr rd ra ad; QUERY: 1, ANSWER: 0, AUTHORITY: 4, ADDITIONAL: 1
 
 ;; OPT PSEUDOSECTION:
@@ -63,7 +63,7 @@ QK4T7IV3QQ3V9RHKGQ1PGBURIJCGUK4M. 1200 IN NSEC3	1 0 10 01D82715 00F2OOIIST9FI265
 ;; Query time: 15 msec
 ;; SERVER: 172.21.0.5#53(172.21.0.5)
 ;; WHEN: Mon Dec 05 22:11:35 UTC 2016
-;; MSG SIZE  rcvd: 785`
+;; MSG SIZE  rcvd: 785```
 
 You can also verify that each DNS server is indeed the authoritative by running:
 `dig @root-server .` and `dig @tld-server tld.` (they will show the "aa" flag)
