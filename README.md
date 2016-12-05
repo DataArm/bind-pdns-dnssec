@@ -47,7 +47,7 @@ bindpdnsdnssec_tld-server_1    pdns_server --daemon=no -- ...   Up      53/tcp, 
 
 Log in to the "client" container by executing: `bash release.sh shell client` and
 run: `dig @recursive . +dnssec` which will show the "do" and "ad" flags (correct
-DNSSEC per ftp://ftp.rfc-editor.org/in-notes/rfc3655.txt), e.g:
+DNSSEC), e.g:
 
 ```
 ;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 61015
@@ -72,3 +72,11 @@ QK4T7IV3QQ3V9RHKGQ1PGBURIJCGUK4M. 1200 IN NSEC3	1 0 10 01D82715 00F2OOIIST9FI265
 
 You can also verify that each DNS server is indeed the authoritative by running:
 `dig @root-server .` and `dig @tld-server tld.` (they will show the "aa" flag)
+
+## documentation
+
+https://doc.powerdns.com/md/authoritative/dnssec/
+
+https://www.isc.org/downloads/bind/dnssec/
+
+ftp://ftp.rfc-editor.org/in-notes/rfc3655.txt
