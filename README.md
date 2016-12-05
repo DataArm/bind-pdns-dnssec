@@ -30,14 +30,15 @@ Steps:
 1. cd to the repository and run: `bash release.sh`
 1. A lot of information will come up, at the end, you should see 4 containers running,
 when executing `bash release.sh status`, e.g:
+
 ```            Name                          Command               State       Ports
 --------------------------------------------------------------------------------------
 bindpdnsdnssec_client_1        tail -F /dev/null                Up
 bindpdnsdnssec_mariadb_1       docker-entrypoint.sh mysqld      Up      3306/tcp
 bindpdnsdnssec_recursive_1     /docker-entrypoint.sh            Up      53/tcp, 53/udp
 bindpdnsdnssec_root-server_1   named -g -u named -d 99          Up      53/tcp, 53/udp
-bindpdnsdnssec_tld-server_1    pdns_server --daemon=no -- ...   Up      53/tcp, 53/udp
-```
+bindpdnsdnssec_tld-server_1    pdns_server --daemon=no -- ...   Up      53/tcp, 53/udp```
+
 1. Open up a screen and keep an eye on the logs by executing: `bash release.sh logs`
 
 ## Usage
