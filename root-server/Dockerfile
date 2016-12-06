@@ -9,8 +9,7 @@ ADD var-named /var/named
 ADD etc-named.conf /etc/named.conf
 ADD etc-rndc.conf /etc/rndc.conf
 
-RUN cd /var/named/keys \
-  && touch /var/log/named.log && chown -Rf named:named /var/named/ /var/log/named.log
+RUN touch /var/log/named.log && chown -Rf named:named /var/named/ /var/log/named.log
 
 CMD ["named", "-g", "-u", "named", "-d", "99"]
 
