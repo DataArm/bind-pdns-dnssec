@@ -1,0 +1,2 @@
+.             14400  IN      NS      root-server.
+root-server.  14400  IN      A       ##__ROOT_SERVER_IPV4__##
