@@ -4,6 +4,10 @@
 ACTION="${1}"
 if [[ "${ACTION}" != "" ]]; then
   CONTAINER="${2}"
+  CONTAINER_ID="${3}"
+  if [[ "${CONTAINER_ID}" == "" ]]; then
+    CONTAINER_ID="1"
+  fi
 else
   ACTION="build"
 fi
@@ -43,24 +47,25 @@ case "${ACTION}" in
       && docker-compose exec root-server '/root/update-dns.sh' '/root/data.txt' \
       && docker-compose exec root-server '/root/sign-zone.sh' '.'
     fi
-    if [[ "${CONTAINER}" == "" ]] || [[ "${CONTAINER}" == "mariadb" ]]; then
-      docker-compose exec mariadb '/root/init.sh'
-    fi
     if [[ "${CONTAINER}" == "" ]] || [[ "${CONTAINER}" == "tld-server" ]]; then
-      docker-compose exec tld-server '/root/init-zone.sh' 'tld'
-      DS="`docker-compose exec tld-server 'pdnsutil' 'show-zone' 'tld' | grep -e '^DS' | sed -e "s| *;.*||g" -e "s|.*= *|update add |g" -e "s|\. IN DS|. 86400 IN DS|g"`"
-      CNT_NAME="`docker-compose ps | awk '{ print $1; }' | grep "tld-server_1$"`"
-      IP="`docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CNT_NAME}`"
-      echo "zone .
-        debug
-        update delete tld-server. A
-        update add tld-server. 86400 IN A ${IP}
-        update delete tld. NS
-        update add tld. 86400 IN NS tld-server.
-        ${DS}" > data.txt
-      CNT_NAME="`docker-compose ps | awk '{ print $1; }' | grep "root-server_1$"`"
-      docker cp data.txt ${CNT_NAME}:/root/ \
-      && docker-compose exec root-server '/root/update-dns.sh' '/root/data.txt'
+      docker-compose scale tld-server=2
+      for index in {1..2}; do
+        for zone in tld; do
+          docker-compose exec --index=${index} tld-server '/root/init-zone.sh' "${index}" "${zone}"
+          DS="`docker-compose exec --index=${index} tld-server 'pdnsutil' 'show-zone' "${zone}" | grep -e '^DS' | sed -e "s| *;.*||g" -e "s|.*= *|update add |g" -e "s|\. IN DS|. 86400 IN DS|g"`"
+          CNT_NAME="`docker-compose ps | awk '{ print $1; }' | grep "tld-server_${index}$"`"
+          IP="`docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CNT_NAME}`"
+          echo "zone .
+            debug
+            update delete tld-server${index}. A
+            update add tld-server${index}. 86400 IN A ${IP}
+            update add ${zone}. 86400 IN NS tld-server${index}.
+            ${DS}" > data.txt
+          CNT_NAME="`docker-compose ps | awk '{ print $1; }' | grep "root-server_1$"`"
+          docker cp data.txt ${CNT_NAME}:/root/ \
+          && docker-compose exec root-server '/root/update-dns.sh' '/root/data.txt'
+        done
+      done
     fi
     ;;
   "destroy" )
@@ -70,6 +75,6 @@ case "${ACTION}" in
     docker-compose logs -f ${CONTAINER}
     ;;
   "shell" )
-    docker-compose exec ${CONTAINER} bash
+    docker-compose exec --index=${CONTAINER_ID} ${CONTAINER} bash
     ;;
 esac

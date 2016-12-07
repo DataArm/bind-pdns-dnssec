@@ -1,9 +1,5 @@
 version: '2'
 services:
-  mariadb:
-    build: mariadb
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
   recursive:
     build: recursive
     depends_on:
@@ -13,7 +9,6 @@ services:
   tld-server:
     build: tld-server
     depends_on:
-      - mariadb
       - root-server
   client:
     build: client
