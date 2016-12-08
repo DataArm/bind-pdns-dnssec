@@ -60,6 +60,7 @@ case "${ACTION}" in
     if [[ "${CONTAINER}" == "" ]] || [[ "${CONTAINER}" == "tld-server" ]]; then
       docker-compose scale tld-server=2
       for index in {1..2}; do
+        docker-compose exec --index=${index} tld-server '/root/init-db.sh' "${index}" "${zone}"
         for zone in tld; do
           docker-compose exec --index=${index} tld-server '/root/init-zone.sh' "${index}" "${zone}"
           DS="`docker-compose exec --index=${index} tld-server 'pdnsutil' 'show-zone' "${zone}" | grep -e '^DS' | sed -e "s| *;.*||g" -e "s|.*= *|update add |g" -e "s|\. IN DS|. 86400 IN DS|g"`"

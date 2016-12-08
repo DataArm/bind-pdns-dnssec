@@ -1,8 +1,8 @@
 zone .
             debug
             update delete tld-server2. A
-            update add tld-server2. 86400 IN A 172.21.0.3
+            update add tld-server2. 86400 IN A 172.21.0.6
             update add tld. 86400 IN NS tld-server2.
-            update add tld. 86400 IN DS 28794 13 1 a06177067d94faf47bcd4db62c120424b68584d4
-update add tld. 86400 IN DS 28794 13 2 59899023180389d3fb9823d155e58a570fcc819dacfc06814cfe37a6eadf480b
-update add tld. 86400 IN DS 28794 13 4 20969e56e93c162dea89c476cadcd9fa11a24909f7f8c0fef49713d83e62c6be1b055959a2eee6d2d3a9b2350382532e
+            update add tld. 86400 IN DS 9000 13 1 5c885918ba2816a25d0bdf9fead46ee24197e770
+update add tld. 86400 IN DS 9000 13 2 b4cec4d7962e08d66b8fc08c295334c1394443875592645bddbf7b3fdc59bfe6
+update add tld. 86400 IN DS 9000 13 4 df76799009f2d28f4d77caab1e7c7d45a0ad671a87af7ab0ad50a264fca489c88dc1500944dd01898f64213e35cebe45
