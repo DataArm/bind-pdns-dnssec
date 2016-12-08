@@ -4,24 +4,35 @@
 ACTION="${1}"
 if [[ "${ACTION}" != "" ]]; then
   CONTAINER="${2}"
-  CONTAINER_ID="${3}"
-  if [[ "${CONTAINER_ID}" == "" ]]; then
-    CONTAINER_ID="1"
+  if [[ "${ACTION}" == "shell" ]]; then
+    CONTAINER_ID="${3}"
+    if [[ "${CONTAINER_ID}" == "" ]]; then
+      CONTAINER_ID="1"
+    fi
   fi
 else
-  ACTION="build"
+  ACTION="start"
 fi
 
 case "${ACTION}" in
-  "prepare" | "build" )
+  "build" )
     docker-compose build ${CONTAINER}
+    ;;
+  "logs" )
+    docker-compose logs -f ${CONTAINER}
     ;;
   "rm"|"destroy" )
     docker-compose kill ${CONTAINER}
-    docker-compose rm -f ${CONTAINER}
+    docker-compose rm -f -v ${CONTAINER}
     ;;
   "stop" )
     docker-compose stop ${CONTAINER}
+    ;;
+  "shell" )
+    docker-compose exec --index=${CONTAINER_ID} ${CONTAINER} bash
+    ;;
+  "start" )
+    docker-compose up --build -d ${CONTAINER}
     ;;
   "status" )
     docker-compose ps
@@ -29,8 +40,7 @@ case "${ACTION}" in
 esac
 
 case "${ACTION}" in
-  "build" | "start" )
-    docker-compose up --build -d ${CONTAINER}
+  "start" )
     if [[ "${CONTAINER}" == "" ]] || [[ "${CONTAINER}" == "root-server" ]]; then
       CNT_NAME="`docker-compose ps | awk '{ print $1; }' | grep "root-server_1$"`"
       IP="`docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CNT_NAME}`"
@@ -70,11 +80,5 @@ case "${ACTION}" in
     ;;
   "destroy" )
     docker images -q | xargs -IID docker rmi ID
-    ;;
-  "logs" )
-    docker-compose logs -f ${CONTAINER}
-    ;;
-  "shell" )
-    docker-compose exec --index=${CONTAINER_ID} ${CONTAINER} bash
     ;;
 esac
