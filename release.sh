@@ -13,7 +13,7 @@ else
 fi
 
 case "${ACTION}" in
-  "prepare" | "build" )
+  "build" | "start" )
     docker-compose build ${CONTAINER}
     ;;
   "rm"|"destroy" )
