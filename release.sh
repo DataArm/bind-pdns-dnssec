@@ -78,6 +78,16 @@ case "${ACTION}" in
         done
       done
     fi
+    if [[ "${CONTAINER}" == "" ]]; then
+      echo "" > update-hosts.sh
+      for index in {1..2}; do
+        echo "IP=\$(dig @root-server +short tld-server${index}) && echo \"\${IP} tld-server${index}\" >> /etc/hosts" >> update-hosts.sh
+      done
+      for cnt_name in `docker-compose ps | grep "Up" | awk '{ print $1; }'`; do
+        docker cp update-hosts.sh ${cnt_name}:/root/ \
+        && docker exec -i ${cnt_name} bash /root/update-hosts.sh
+      done
+    fi
     ;;
   "destroy" )
     docker images -q | xargs -IID docker rmi ID

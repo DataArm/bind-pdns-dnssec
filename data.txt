@@ -3,6 +3,6 @@ zone .
             update delete tld-server2. A
             update add tld-server2. 86400 IN A 172.21.0.6
             update add tld. 86400 IN NS tld-server2.
-            update add tld. 86400 IN DS 9000 13 1 5c885918ba2816a25d0bdf9fead46ee24197e770
-update add tld. 86400 IN DS 9000 13 2 b4cec4d7962e08d66b8fc08c295334c1394443875592645bddbf7b3fdc59bfe6
-update add tld. 86400 IN DS 9000 13 4 df76799009f2d28f4d77caab1e7c7d45a0ad671a87af7ab0ad50a264fca489c88dc1500944dd01898f64213e35cebe45
+            update add tld. 86400 IN DS 26862 13 1 920465434fad25567063589a27e9108a86c7c3a2
+update add tld. 86400 IN DS 26862 13 2 3ca975c54a2ab551e205967780541273bfc089cca47cc23f80565cc4b736645d
+update add tld. 86400 IN DS 26862 13 4 9d5c93cb22557d7bc85fbe43a70ef737993976743c41cb3df41d44ce2d55a0f0023e145c971ffaa6367d434801c11f0a

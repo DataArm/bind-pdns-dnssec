@@ -13,8 +13,6 @@ pdnsutil create-zone ${2} tld-server1
 if [[ "${?}" == "0" ]]; then
   for index in {1..2}; do
     pdnsutil add-record ${2} @ NS tld-server${index}.
-    IP="`dig @root-server +short tld-server${index}`"
-    echo "${IP} tld-server${index}" >> /etc/hosts
   done
 fi
 if [[ "${?}" == "0" ]]; then
