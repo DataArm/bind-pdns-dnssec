@@ -5,8 +5,6 @@ RUN yum install -y epel-release yum-plugin-priorities \
 && yum install -y pdns-backend-mysql mariadb-server supervisor bind-utils \
 && mysql_install_db --user=mysql
 
-ADD keys /root/keys
-
 ADD etc-pdns.conf /etc/pdns/pdns.conf
 ADD etc-supervisord.d-supervisord.ini /etc/supervisord.d/supervisord.ini
 

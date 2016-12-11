@@ -95,3 +95,6 @@ ENV/
 #NodeJS
 npm-debug.log
 node_modules
+
+#Temp keys
+tld-server/keys
