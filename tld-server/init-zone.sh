@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-echo "Initializing zone ${2} on ${1} ..."
+echo "Initializing TLD zone ${2} on ${1} ..."
 
+cd
 ESTAT="1"
 while [[ "${ESTAT}" != "0" ]]; do
   echo "Waiting for database..."
@@ -16,6 +17,9 @@ if [[ "${?}" == "0" ]]; then
   done
 fi
 if [[ "${?}" == "0" ]]; then
-  pdnsutil secure-zone ${2} \
-  && pdnsutil set-nsec3 ${2} '1 0 1 a7'
+  pdnsutil import-zone-key ${2} keys/ksk.txt ksk active \
+  && pdnsutil import-zone-key ${2} keys/zsk.txt zsk active \
+  && pdnsutil import-zone-key ${2} keys/zsk2.txt zsk inactive \
+  && pdnsutil set-nsec3 ${2} '1 0 1 a7' \
+  && pdnsutil rectify-all-zones
 fi
