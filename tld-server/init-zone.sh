@@ -18,7 +18,7 @@ if [[ "${?}" == "0" ]]; then
 fi
 if [[ "${?}" == "0" ]]; then
   pdnsutil import-zone-key ${2} keys/ksk.txt ksk active \
-  && pdnsutil import-zone-key ${2} keys/zsk.txt zsk active \
+  && pdnsutil import-zone-key ${2} keys/zsk1.txt zsk active \
   && pdnsutil import-zone-key ${2} keys/zsk2.txt zsk inactive \
   && pdnsutil set-nsec3 ${2} '1 0 1 a7' \
   && pdnsutil rectify-all-zones

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo "Initializing tld-server..."
+echo "Starting tld-server ${1}..."
 cd
 ESTAT="1"
 while [[ "${ESTAT}" != "0" ]]; do

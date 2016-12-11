@@ -6,7 +6,7 @@ DELETE FROM mysql.user WHERE user ='';
 USE rDNS;
 
 CREATE TABLE domains (
-  id                    INT NOT NULL,
+  id                    INT AUTO_INCREMENT,
   name                  VARCHAR(255) NOT NULL,
   master                VARCHAR(128) DEFAULT NULL,
   last_check            INT DEFAULT NULL,
