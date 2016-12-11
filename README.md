@@ -50,7 +50,18 @@ run: `dig @recursive . +dnssec` which will show the "do" and "ad" flags (correct
 DNSSEC), e.g:
 
 ```
+...
 ;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 61015
+;; flags: qr rd ra ad; QUERY: 1, ANSWER: 0, AUTHORITY: 4, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags: do; udp: 4096
+...
+```
+Or `dig @recursive does-not-exist.tld +dnssec`
+```
+...
+;; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 57872
 ;; flags: qr rd ra ad; QUERY: 1, ANSWER: 0, AUTHORITY: 4, ADDITIONAL: 1
 
 ;; OPT PSEUDOSECTION:
