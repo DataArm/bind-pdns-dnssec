@@ -77,6 +77,7 @@ case "${ACTION}" in
           && docker-compose exec root-server '/root/update-dns.sh' '/root/data.txt'
         done
       done
+      rm -f data.txt
     fi
     if [[ "${CONTAINER}" == "" ]]; then
       echo "" > update-hosts.sh
@@ -87,6 +88,7 @@ case "${ACTION}" in
         docker cp update-hosts.sh ${cnt_name}:/root/ \
         && docker exec -i ${cnt_name} bash /root/update-hosts.sh
       done
+      rm -f update-hosts.sh
     fi
     ;;
   "destroy" )
