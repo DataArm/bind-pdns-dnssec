@@ -11,7 +11,9 @@ ADD etc-supervisord.d-supervisord.ini /etc/supervisord.d/supervisord.ini
 ADD init-pdns.sql init-zone.sh init-db.sh /root/
 RUN chmod +x /root/*.sh
 
-CMD ["supervisord"]
+ADD init.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 EXPOSE 53
 EXPOSE 53/udp

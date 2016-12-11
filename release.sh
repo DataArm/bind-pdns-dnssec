@@ -90,16 +90,21 @@ case "${ACTION}" in
         && docker-compose exec tld-server pdnsutil export-zone-key ktest 1 > tld-server/keys/ksk.txt \
         && docker-compose exec tld-server pdnsutil export-zone-key ktest 2 > tld-server/keys/zsk1.txt \
         && docker-compose exec tld-server pdnsutil export-zone-key ktest 3 > tld-server/keys/zsk2.txt \
+        && docker-compose exec tld-server pdnsutil delete-zone ktest \
+        && docker-compose exec tld-server pdnsutil create-zone ktest \
+        && docker-compose exec tld-server pdnsutil secure-zone ktest \
+        && docker-compose exec tld-server pdnsutil export-zone-key ktest 5 > tld-server/keys/csk.txt \
         && docker-compose exec tld-server pdnsutil delete-zone ktest
       fi \
       && echo "" > update-etc-hosts.sh \
       && for index in {1..2}; do
         TLDCNT_NAME="`docker-compose ps | awk '{ print $1; }' | grep "tld-server_${index}$"`" \
+        && TLDCNT_IP="`docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${TLDCNT_NAME}`" \
         && docker cp tld-server/keys ${TLDCNT_NAME}:/root/keys \
         && for zone in tld; do
           docker-compose exec --index=${index} tld-server '/root/init-zone.sh' "${index}" "${zone}" \
-          && DS="`docker-compose exec --index=${index} tld-server pdnsutil show-zone ${zone} | grep -e '^DS' | sed -e "s| *;.*||g" -e "s|.*= *|update add |g" -e "s|\. IN DS|. 86400 IN DS|g"`"
-          echo "zone .
+          && DS="`docker-compose exec --index=${index} tld-server pdnsutil show-zone ${zone} | grep -e '^DS' | sed -e "s| *;.*||g" -e "s|.*= *|update add |g" -e "s|\. IN DS|. 86400 IN DS|g"`" \
+          && echo "zone .
             update add ${zone}. 86400 IN NS tld-server${index}.
             ${DS}" > data.txt \
           && docker cp data.txt ${ROOTCNT_NAME}:/root/ \
@@ -107,17 +112,16 @@ case "${ACTION}" in
           if [[ "${?}" != "0" ]]; then exit 1; fi
         done \
         && echo "echo \"${TLDCNT_IP} tld-server${index}\" >> /etc/hosts" >> update-etc-hosts.sh
-      done
-      rm -Rf data.txt
+      done \
+      && rm -Rf data.txt
     fi \
-    && if [[ "${CONTAINER}" == "" ]]; then
-      for cnt_name in `docker-compose ps | grep "Up" | awk '{ print $1; }'`; do
-        docker cp update-etc-hosts.sh ${cnt_name}:/root/ \
-        && docker exec -i ${cnt_name} bash /root/update-etc-hosts.sh
-        if [[ "${?}" != "0" ]]; then exit 1; fi
-      done
-      rm -f update-etc-hosts.sh
-    fi
+    && for cnt_name in `docker-compose ps | grep "Up" | awk '{ print $1; }'`; do
+      docker cp update-etc-hosts.sh ${cnt_name}:/root/ \
+      && docker exec -i ${cnt_name} bash /root/update-etc-hosts.sh
+      if [[ "${?}" != "0" ]]; then exit 1; fi
+    done \
+    && rm -f update-etc-hosts.sh \
+    && echo "All good"
     ;;
   "destroy" )
     docker images -q | xargs -IID docker rmi ID

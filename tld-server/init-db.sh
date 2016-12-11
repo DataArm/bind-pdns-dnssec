@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 echo "Starting tld-server ${1}..."
-cd
 ESTAT="1"
 while [[ "${ESTAT}" != "0" ]]; do
   echo "Waiting for database..."
@@ -11,6 +10,7 @@ while [[ "${ESTAT}" != "0" ]]; do
 done
 
 echo "Database is available, initializing..."
-mysqladmin -u root password 'root' \
+cd && mysqladmin -u root password 'root' \
 && mysql -h 127.0.0.1 -uroot -proot < "init-pdns.sql" \
-&& echo "flush privileges;" | mysql -h 127.0.0.1 -uroot -proot
+&& echo "flush privileges;" | mysql -h 127.0.0.1 -uroot -proot \
+&& exit ${?}

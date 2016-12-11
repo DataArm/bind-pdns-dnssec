@@ -74,6 +74,11 @@ You can also verify that each DNS server is indeed the authoritative by running:
 show the "aa" flag), also, you can stop/start one of the TLD servers and confirm
 the recursive is still working (e.g. `docker stop bindpdnsdnssec_tld-server_2`)
 
+## 3rd-level domain
+
+Also implemented using a single key (PowerDNS calls it "csk"), currently "nic.tld"
+`dig @recursive whois.nic.tld A +dnssec` or `dig @recursive nic.tld SOA +dnssec`
+
 ## documentation
 
 https://doc.powerdns.com/md/authoritative/dnssec/
