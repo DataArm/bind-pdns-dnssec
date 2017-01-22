@@ -59,8 +59,8 @@ case "${ACTION}" in
       && docker-compose exec root-server '/root/sign-zone.sh' '.'
     fi \
     && if [[ "${CONTAINER}" == "" ]] || [[ "${CONTAINER}" == "tld-server" ]]; then
-      docker-compose scale tld-server=2 \
-      && for index in {1..2}; do
+      docker-compose scale tld-server=1 \
+      && for index in {1..1}; do
         docker-compose exec --index=${index} tld-server '/root/init-db.sh' "${index}" \
         && TLDCNT_NAME="`docker-compose ps | awk '{ print $1; }' | grep "tld-server_${index}$"`" \
         && TLDCNT_IP="`docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${TLDCNT_NAME}`" \
@@ -84,26 +84,26 @@ case "${ACTION}" in
         && docker-compose exec tld-server pdnsutil create-zone ktest \
         && docker-compose exec tld-server pdnsutil add-zone-key ktest ksk 2048 active rsasha256 \
         && docker-compose exec tld-server pdnsutil add-zone-key ktest zsk 2048 active rsasha256 \
-        && docker-compose exec tld-server pdnsutil add-zone-key ktest zsk 2048 inactive rsasha256 \
-        && docker-compose exec tld-server pdnsutil add-zone-key ktest zsk 2048 inactive rsasha256 \
         && docker-compose exec tld-server pdnsutil rectify-all-zones \
         && docker-compose exec tld-server pdnsutil export-zone-key ktest 1 > tld-server/keys/ksk.txt \
-        && docker-compose exec tld-server pdnsutil export-zone-key ktest 2 > tld-server/keys/zsk1.txt \
-        && docker-compose exec tld-server pdnsutil export-zone-key ktest 3 > tld-server/keys/zsk2.txt \
+        && docker-compose exec tld-server pdnsutil export-zone-key ktest 2 > tld-server/keys/zsk.txt \
         && docker-compose exec tld-server pdnsutil delete-zone ktest \
-        && docker-compose exec tld-server pdnsutil create-zone ktest \
-        && docker-compose exec tld-server pdnsutil secure-zone ktest \
-        && docker-compose exec tld-server pdnsutil export-zone-key ktest 5 > tld-server/keys/csk.txt \
-        && docker-compose exec tld-server pdnsutil delete-zone ktest
+        && docker-compose exec tld-server pdnsutil create-zone nic.ktest \
+        && docker-compose exec tld-server pdnsutil add-zone-key nic.ktest ksk 2048 active rsasha256 \
+        && docker-compose exec tld-server pdnsutil add-zone-key nic.ktest zsk 2048 active rsasha256 \
+        && docker-compose exec tld-server pdnsutil rectify-all-zones \
+        && docker-compose exec tld-server pdnsutil export-zone-key nic.ktest 3 > tld-server/keys/nic.ksk.txt \
+        && docker-compose exec tld-server pdnsutil export-zone-key nic.ktest 4 > tld-server/keys/nic.zsk.txt \
+        && docker-compose exec tld-server pdnsutil delete-zone nic.ktest
       fi \
       && echo "" > update-etc-hosts.sh \
-      && for index in {1..2}; do
+      && for index in {1..1}; do
         TLDCNT_NAME="`docker-compose ps | awk '{ print $1; }' | grep "tld-server_${index}$"`" \
         && TLDCNT_IP="`docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${TLDCNT_NAME}`" \
         && docker cp tld-server/keys ${TLDCNT_NAME}:/root/keys \
         && for zone in tld; do
           docker-compose exec --index=${index} tld-server '/root/init-zone.sh' "${index}" "${zone}" \
-          && DS="`docker-compose exec --index=${index} tld-server pdnsutil show-zone ${zone} | grep -e '^DS' | sed -e "s| *;.*||g" -e "s|.*= *|update add |g" -e "s|\. IN DS|. 86400 IN DS|g"`" \
+          && DS="`docker-compose exec --index=${index} tld-server pdnsutil show-zone ${zone} | grep -e '^DS' | grep -E -e 'SHA[0-9]+' | sed -e "s| *;.*||g" -e "s|.*= *|update add |g" -e "s|\. IN DS|. 86400 IN DS|g"`" \
           && echo "zone .
             update add ${zone}. 86400 IN NS tld-server${index}.
             ${DS}" > data.txt \

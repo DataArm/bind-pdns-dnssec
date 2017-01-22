@@ -1,4 +1,4 @@
-FROM centos:7
+FROM centos:6
 
 RUN yum install -y bind-utils
 
